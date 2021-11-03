@@ -22,14 +22,12 @@ public class User implements UserDetails {
     private Integer id;
     private String username;
     private String password;
-    private String role;
     private String notificationToken;
-    private Boolean enabled;
 
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRole() != null ? Collections.singletonList(new SimpleGrantedAuthority(getRole())) : Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @JsonIgnore
@@ -50,9 +48,10 @@ public class User implements UserDetails {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return true;
     }
 
     @JsonIgnore

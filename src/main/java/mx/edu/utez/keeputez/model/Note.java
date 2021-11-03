@@ -13,8 +13,9 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String title;
+    private String body;
     private String image;
-    private LocalDate experation;
+    private LocalDate expiration;
 
     @ManyToOne
     private User user;

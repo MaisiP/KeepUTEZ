@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -48,7 +47,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         User user = jwtTokenUtil.parseToken(token);
         if (user != null) {
             return new UsernamePasswordAuthenticationToken(user, null,
-            Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
+                    Collections.emptyList());
         } else {
             loggerMessage.warn("Token inválido");
             return null;

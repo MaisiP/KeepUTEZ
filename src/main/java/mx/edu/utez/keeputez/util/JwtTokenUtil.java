@@ -35,7 +35,6 @@ public class JwtTokenUtil {
                     .parseClaimsJws(token).getBody();
             User user = new User();
             user.setUsername(claims.getSubject());
-            user.setRole(claims.get("role", String.class));
             return user;
         } catch (JwtException e) {
             return null;
@@ -45,7 +44,6 @@ public class JwtTokenUtil {
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("role", user.getRole())
                 .signWith(key)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
