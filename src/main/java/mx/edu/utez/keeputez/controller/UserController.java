@@ -7,8 +7,7 @@ import mx.edu.utez.keeputez.model.Note;
 import mx.edu.utez.keeputez.model.Notification;
 import mx.edu.utez.keeputez.model.User;
 
-import mx.edu.utez.keeputez.model.dto.NoteCreateDTO;
-import mx.edu.utez.keeputez.model.dto.NoteUpdateDTO;
+import mx.edu.utez.keeputez.model.dto.*;
 import mx.edu.utez.keeputez.repository.CategoryRepository;
 import mx.edu.utez.keeputez.repository.NotificationRepository;
 import mx.edu.utez.keeputez.repository.NoteRepository;
@@ -17,7 +16,10 @@ import mx.edu.utez.keeputez.util.DTO;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user/")
@@ -29,7 +31,7 @@ public class UserController {
     private final NoteRepository noteRepository;
 
     public UserController(CategoryRepository categoryRepository, UserRepository userRepository,
-                          NotificationRepository notificationRepository, mx.edu.utez.keeputez.repository.NoteRepository noteRepository) {
+                          NotificationRepository notificationRepository, NoteRepository noteRepository) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.notificationRepository = notificationRepository;
@@ -43,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("notification")
-    public SuccessMessage savePreferences(Notification notification) {
+    public SuccessMessage savePreferences(@DTO(NotificationCreateDTO.class) Notification notification) {
         User user = getUserInSession();
         notification.setUser(user);
         notificationRepository.save(notification);
@@ -51,7 +53,7 @@ public class UserController {
     }
 
     @DeleteMapping("notification")
-    public Object deletePreferences(Notification notification) {
+    public Object deletePreferences(@DTO(NotificationDeleteDTO.class) Notification notification) {
         notificationRepository.deleteById(notification.getId());
         if (notificationRepository.existsById(notification.getId())) {
             return new SuccessMessage("Preferencias eliminadas");
@@ -67,21 +69,24 @@ public class UserController {
     }
 
     @PostMapping("category")
-    public SuccessMessage saveCategory(Category category) {
+    public SuccessMessage saveCategory(@DTO(CategoryCreateDTO.class) Category category) {
         User user = getUserInSession();
         category.setUser(user);
         categoryRepository.save(category);
         return new SuccessMessage("Categoria guardada");
     }
 
+    @PutMapping("category")
+    private SuccessMessage updateListNotes(@DTO(CategoryUpdateListNotes.class) Category category){
+
+        categoryRepository.save(category);
+        return new SuccessMessage("Lista actualizada");
+    }
+
     @DeleteMapping("category")
-    public Object deleteCategory(Category category) {
+    public Object deleteCategory(@DTO(CategoryDeleteDTO.class) Category category) {
         if (categoryRepository.existsById(category.getId())) {
-            List<Note> notes = noteRepository.findAllByCategory(category);
-            for (Note note : notes) {
-                note.setCategory(null);
-                noteRepository.save(note);
-            }
+
             categoryRepository.deleteById(category.getId());
             return new SuccessMessage("Categoria eliminada");
         } else {
@@ -103,15 +108,14 @@ public class UserController {
         return new SuccessMessage("Nota guardada");
     }
 
-    //Update
     @PutMapping("note")
     public SuccessMessage updateNote(@DTO(NoteUpdateDTO.class) Note note) {
         noteRepository.save(note);
-        return new SuccessMessage("Nota guardada");
+        return new SuccessMessage("Nota actualizada");
     }
 
     @DeleteMapping("note")
-    public Object deleteNote(Note note) {
+    public Object deleteNote(@DTO(NoteDeleteDTO.class) Note note) {
         categoryRepository.deleteById(note.getId());
         if (categoryRepository.existsById(note.getId())) {
             return new SuccessMessage("Nota eliminada");

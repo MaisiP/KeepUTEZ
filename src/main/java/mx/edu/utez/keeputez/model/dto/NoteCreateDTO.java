@@ -7,28 +7,20 @@ import org.springframework.data.annotation.Id;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 public class NoteCreateDTO {
-
-    @Getter
-    @Setter
-    private static class CategoryDTO{
-        @Id
-        @NotEmpty
-        private Integer Id;
-    }
 
     @NotEmpty
     private String title;
 
     private String body;
 
-    private String image;
+    private Byte[] image;
 
     @NotNull
     private LocalDate expiration;
 
-    private CategoryDTO category;
 }

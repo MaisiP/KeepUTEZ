@@ -1,5 +1,6 @@
 package mx.edu.utez.keeputez.controller;
 
+import mx.edu.utez.keeputez.bean.ErrorMessage;
 import mx.edu.utez.keeputez.bean.SuccessMessage;
 import mx.edu.utez.keeputez.model.User;
 import mx.edu.utez.keeputez.model.dto.UserCreateDTO;
@@ -24,7 +25,9 @@ public class PublicController {
     }
 
     @PostMapping("user")
-    public SuccessMessage saveUser(@DTO(UserCreateDTO.class) User user){
+    public Object saveUser(@DTO(UserCreateDTO.class) User user){
+        if (userRepository.existsByUsername(user.getUsername()))
+            return new ErrorMessage("Nombre de usuario en uso");
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return new SuccessMessage("Usuario registrado");

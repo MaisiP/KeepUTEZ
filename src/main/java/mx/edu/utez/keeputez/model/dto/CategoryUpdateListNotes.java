@@ -4,28 +4,28 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
 @Setter
-public class NoteUpdateDTO {
+public class CategoryUpdateListNotes {
+
+    @Getter
+    @Setter
+    private static class NoteDTO{
+        @Id
+        @NotNull
+        private Integer Id;
+    }
 
     @Id
     @NotNull
     private Integer id;
 
+    @Valid
     @NotEmpty
-    private String title;
-
-    private String body;
-
-    @NotEmpty
-    private Byte[] image;
-
-    @NotNull
-    private LocalDate expiration;
-
+    private List<NoteDTO> notes;
 }

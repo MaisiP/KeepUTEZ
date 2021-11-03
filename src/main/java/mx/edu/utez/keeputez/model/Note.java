@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -14,11 +15,11 @@ public class Note {
     private Integer id;
     private String title;
     private String body;
-    private String image;
+    @Lob
+    private Byte[] image;
     private LocalDate expiration;
 
     @ManyToOne
     private User user;
-    @ManyToOne
-    private Category category;
+
 }
