@@ -13,6 +13,7 @@ import mx.edu.utez.keeputez.repository.NotificationRepository;
 import mx.edu.utez.keeputez.repository.NoteRepository;
 import mx.edu.utez.keeputez.repository.UserRepository;
 import mx.edu.utez.keeputez.util.DTO;
+import mx.edu.utez.keeputez.util.Utils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,9 +31,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final NoteRepository noteRepository;
-
-    private Object responseBody;
-    private HttpStatus httpStatus;
 
     public UserController(CategoryRepository categoryRepository, UserRepository userRepository,
                           NotificationRepository notificationRepository, NoteRepository noteRepository) {
@@ -110,9 +108,7 @@ public class UserController {
         User user = getUserInSession();
         note.setUser(user);
         noteRepository.save(note);
-        responseBody = new SuccessMessage("Nota guardada");
-        httpStatus = HttpStatus.OK;
-        return new ResponseEntity<>(responseBody, httpStatus);
+        return Utils.getResponseEntity("Nota guardada", HttpStatus.OK);
     }
 
     @Transactional
@@ -128,13 +124,10 @@ public class UserController {
                 Category category = categoryRepository.findById(noteDTO.getCategory().getId()).orElse(null);
                 note.setCategory(category);
             }
-            responseBody = new SuccessMessage("Nota actualizada");
-            httpStatus = HttpStatus.OK;
+            return Utils.getResponseEntity("Nota actualizada", HttpStatus.OK);
         } else {
-            responseBody = new ErrorMessage("Nota no encontrada");
-            httpStatus = HttpStatus.BAD_REQUEST;
+            return Utils.getResponseEntity("Nota no encontrada", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(responseBody, httpStatus);
     }
 
     @DeleteMapping("note")
