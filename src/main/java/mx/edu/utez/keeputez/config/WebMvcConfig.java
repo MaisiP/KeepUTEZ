@@ -2,6 +2,7 @@ package mx.edu.utez.keeputez.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mx.edu.utez.keeputez.util.DTOModelMapper;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;

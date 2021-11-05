@@ -1,6 +1,8 @@
 package mx.edu.utez.keeputez.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -19,7 +21,10 @@ public class Note {
     private Byte[] image;
     private LocalDate expiration;
 
+    @JsonIgnore
     @ManyToOne
     private User user;
 
+    @ManyToOne
+    private Category category;
 }

@@ -21,7 +21,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final JwtTokenUtil jwtTokenUtil;
     final String AUTHORIZATION_HEADER = "Authorization";
 
-    Logger loggerMessage = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
+    final Logger loggerMessage = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
     public JwtAuthorizationFilter(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager) {
         super(authenticationManager);

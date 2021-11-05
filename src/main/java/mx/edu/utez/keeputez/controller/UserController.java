@@ -13,13 +13,14 @@ import mx.edu.utez.keeputez.repository.NotificationRepository;
 import mx.edu.utez.keeputez.repository.NoteRepository;
 import mx.edu.utez.keeputez.repository.UserRepository;
 import mx.edu.utez.keeputez.util.DTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user/")
@@ -29,6 +30,9 @@ public class UserController {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final NoteRepository noteRepository;
+
+    private Object responseBody;
+    private HttpStatus httpStatus;
 
     public UserController(CategoryRepository categoryRepository, UserRepository userRepository,
                           NotificationRepository notificationRepository, NoteRepository noteRepository) {
@@ -77,16 +81,17 @@ public class UserController {
     }
 
     @PutMapping("category")
-    private SuccessMessage updateListNotes(@DTO(CategoryUpdateListNotes.class) Category category){
-
+    private SuccessMessage updateListNotes(@DTO(CategoryUpdateListNotes.class) Category category) {
         categoryRepository.save(category);
         return new SuccessMessage("Lista actualizada");
     }
 
+    @Transactional
     @DeleteMapping("category")
     public Object deleteCategory(@DTO(CategoryDeleteDTO.class) Category category) {
         if (categoryRepository.existsById(category.getId())) {
-
+            List<Note> notes = noteRepository.findAllByCategory(category);
+            notes.forEach(note -> note.setCategory(null));
             categoryRepository.deleteById(category.getId());
             return new SuccessMessage("Categoria eliminada");
         } else {
@@ -101,17 +106,35 @@ public class UserController {
     }
 
     @PostMapping("note")
-    public SuccessMessage saveNote(@DTO(NoteCreateDTO.class) Note note) {
+    public ResponseEntity<?> saveNote(@DTO(NoteCreateDTO.class) Note note) {
         User user = getUserInSession();
         note.setUser(user);
         noteRepository.save(note);
-        return new SuccessMessage("Nota guardada");
+        responseBody = new SuccessMessage("Nota guardada");
+        httpStatus = HttpStatus.OK;
+        return new ResponseEntity<>(responseBody, httpStatus);
     }
 
+    @Transactional
     @PutMapping("note")
-    public SuccessMessage updateNote(@DTO(NoteUpdateDTO.class) Note note) {
-        noteRepository.save(note);
-        return new SuccessMessage("Nota actualizada");
+    public ResponseEntity<?> updateNote(@Valid @RequestBody NoteUpdateDTO noteDTO) {
+        Note note = noteRepository.findById(noteDTO.getId()).orElse(null);
+        if (note != null) {
+            note.setTitle(noteDTO.getTitle());
+            note.setBody(noteDTO.getBody());
+            if (noteDTO.getCategory() == null) {
+                note.setCategory(null);
+            } else {
+                Category category = categoryRepository.findById(noteDTO.getCategory().getId()).orElse(null);
+                note.setCategory(category);
+            }
+            responseBody = new SuccessMessage("Nota actualizada");
+            httpStatus = HttpStatus.OK;
+        } else {
+            responseBody = new ErrorMessage("Nota no encontrada");
+            httpStatus = HttpStatus.BAD_REQUEST;
+        }
+        return new ResponseEntity<>(responseBody, httpStatus);
     }
 
     @DeleteMapping("note")
