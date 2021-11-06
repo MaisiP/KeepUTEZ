@@ -3,15 +3,16 @@ package mx.edu.utez.keeputez.model.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalTime;
 
 @Getter
 @Setter
 public class NotificationCreateDTO {
 
-    @NotEmpty
+    @NotNull
     private Integer intervalDays;
-    @NotEmpty
-    private String time;
+    @NotNull
+    private LocalTime time;
 
 }

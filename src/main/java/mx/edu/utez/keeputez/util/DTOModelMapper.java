@@ -55,7 +55,8 @@ public class DTOModelMapper extends RequestResponseBodyMethodProcessor {
             return modelMapper.map(dto, parameter.getParameterType());
         } else {
             Object persistedObject = entityManager.find(parameter.getParameterType(), id);
-            modelMapper.map(dto, persistedObject);
+            if (persistedObject != null)
+                modelMapper.map(dto, persistedObject);
             return persistedObject;
         }
     }

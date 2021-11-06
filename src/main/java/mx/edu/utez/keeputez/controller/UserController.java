@@ -1,7 +1,5 @@
 package mx.edu.utez.keeputez.controller;
 
-import mx.edu.utez.keeputez.bean.ErrorMessage;
-import mx.edu.utez.keeputez.bean.SuccessMessage;
 import mx.edu.utez.keeputez.model.Category;
 import mx.edu.utez.keeputez.model.Note;
 import mx.edu.utez.keeputez.model.Notification;
@@ -41,66 +39,68 @@ public class UserController {
     }
 
     @GetMapping("notification")
-    public Notification getPreferences() {
+    public ResponseEntity<?> getPreferences() {
         User user = getUserInSession();
-        return notificationRepository.findNotificationByUser(user);
+        if (user == null)
+            return Utils.getResponseEntity("Usuario no encontrado", HttpStatus.BAD_REQUEST);
+        return Utils.getResponseEntityObject(notificationRepository.findNotificationByUser(user), HttpStatus.OK);
     }
 
+    @Transactional
     @PostMapping("notification")
-    public SuccessMessage savePreferences(@DTO(NotificationCreateDTO.class) Notification notification) {
+    public ResponseEntity<?> savePreferences(@DTO(NotificationCreateDTO.class) Notification notification) {
         User user = getUserInSession();
+        if (user == null)
+            return Utils.getResponseEntity("Usuario no encontrado", HttpStatus.BAD_REQUEST);
+        notificationRepository.deleteAllByUser(user);
         notification.setUser(user);
         notificationRepository.save(notification);
-        return new SuccessMessage("Configuración de preferencias guardada");
+        return Utils.getResponseEntity("Preferencias guargadas", HttpStatus.OK);
     }
 
+    @Transactional
     @DeleteMapping("notification")
-    public Object deletePreferences(@DTO(NotificationDeleteDTO.class) Notification notification) {
-        notificationRepository.deleteById(notification.getId());
-        if (notificationRepository.existsById(notification.getId())) {
-            return new SuccessMessage("Preferencias eliminadas");
-        } else {
-            return new ErrorMessage("Preferencias no eliminadas");
-        }
+    public ResponseEntity<?> deletePreferences(@DTO(NotificationDeleteDTO.class) Notification notification) {
+        if (notification == null)
+            return Utils.getResponseEntity("Preferencias no encontradas", HttpStatus.BAD_REQUEST);
+        notificationRepository.delete(notification);
+        return Utils.getResponseEntity("Preferencias eliminadas", HttpStatus.OK);
     }
 
     @GetMapping("category")
-    public List<Category> findCategories() {
+    public ResponseEntity<?> findCategories() {
         User user = getUserInSession();
-        return categoryRepository.findAllByUser(user);
+        return Utils.getResponseEntityList(categoryRepository.findAllByUser(user), HttpStatus.OK);
     }
 
+    @Transactional
     @PostMapping("category")
-    public SuccessMessage saveCategory(@DTO(CategoryCreateDTO.class) Category category) {
+    public ResponseEntity<?> saveCategory(@DTO(CategoryCreateDTO.class) Category category) {
         User user = getUserInSession();
         category.setUser(user);
         categoryRepository.save(category);
-        return new SuccessMessage("Categoria guardada");
-    }
-
-    @PutMapping("category")
-    private SuccessMessage updateListNotes(@DTO(CategoryUpdateListNotes.class) Category category) {
-        categoryRepository.save(category);
-        return new SuccessMessage("Lista actualizada");
+        return Utils.getResponseEntity("Categoria guardada", HttpStatus.OK);
     }
 
     @Transactional
     @DeleteMapping("category")
-    public Object deleteCategory(@DTO(CategoryDeleteDTO.class) Category category) {
+    public ResponseEntity<?> deleteCategory(@DTO(CategoryDeleteDTO.class) Category category) {
         if (categoryRepository.existsById(category.getId())) {
             List<Note> notes = noteRepository.findAllByCategory(category);
             notes.forEach(note -> note.setCategory(null));
             categoryRepository.deleteById(category.getId());
-            return new SuccessMessage("Categoria eliminada");
+            return Utils.getResponseEntity("Categoria eliminada", HttpStatus.OK);
         } else {
-            return new ErrorMessage("Categoria no encontrada");
+            return Utils.getResponseEntity("Categoria no encontrada", HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("note")
-    public List<Note> findNotes() {
+    public ResponseEntity<?> findNotes() {
         User user = getUserInSession();
-        return noteRepository.findAllByUser(user);
+        if (user == null)
+            return Utils.getResponseEntity("Usuario no encontrado", HttpStatus.BAD_REQUEST);
+        return Utils.getResponseEntityList(noteRepository.findAllByUser(user), HttpStatus.OK);
     }
 
     @PostMapping("note")
@@ -130,14 +130,14 @@ public class UserController {
         }
     }
 
+    @Transactional
     @DeleteMapping("note")
-    public Object deleteNote(@DTO(NoteDeleteDTO.class) Note note) {
-        categoryRepository.deleteById(note.getId());
-        if (categoryRepository.existsById(note.getId())) {
-            return new SuccessMessage("Nota eliminada");
-        } else {
-            return new ErrorMessage("Nota no eliminada");
+    public ResponseEntity<?> deleteNote(@DTO(NoteDeleteDTO.class) Note note) {
+        if(note == null){
+             return Utils.getResponseEntity("Nota no encontrada", HttpStatus.BAD_REQUEST);
         }
+        noteRepository.delete(note);
+        return Utils.getResponseEntity("Nota eliminada", HttpStatus.OK);
     }
 
     private User getUserInSession() {
