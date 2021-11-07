@@ -1,5 +1,6 @@
 package mx.edu.utez.keeputez.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mx.edu.utez.keeputez.config.filter.JwtAuthenticationEntryPoint;
 import mx.edu.utez.keeputez.config.filter.JwtAuthenticationFilter;
 import mx.edu.utez.keeputez.config.filter.JwtAuthorizationFilter;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Validator;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -32,19 +34,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private JwtAuthorizationFilter jwtAuthorizationFilter;
 
+    private final ObjectMapper objectMapper;
+
+    private final Validator validator;
+
     public WebSecurityConfig(JwtTokenUtil jwtTokenUtil, UserService userService,
                              JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                             BCryptPasswordEncoder bCryptPasswordEncoder) {
+                             BCryptPasswordEncoder bCryptPasswordEncoder, ObjectMapper objectMapper, Validator validator) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.userService = userService;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.objectMapper = objectMapper;
+        this.validator = validator;
     }
 
     @PostConstruct
     public void init() throws Exception {
         this.jwtAuthenticationFilter = new JwtAuthenticationFilter("/login", jwtTokenUtil,
-                authenticationManager());
+                authenticationManager(), objectMapper, validator);
         this.jwtAuthorizationFilter = new JwtAuthorizationFilter(jwtTokenUtil, authenticationManager());
     }
 

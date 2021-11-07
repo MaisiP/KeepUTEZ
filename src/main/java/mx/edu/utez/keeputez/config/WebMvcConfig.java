@@ -19,9 +19,12 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     private final EntityManager entityManager;
 
-    public WebMvcConfig(ApplicationContext applicationContext, EntityManager entityManager) {
+    private final ModelMapper modelMapper;
+
+    public WebMvcConfig(ApplicationContext applicationContext, EntityManager entityManager, ModelMapper modelMapper) {
         this.applicationContext = applicationContext;
         this.entityManager = entityManager;
+        this.modelMapper = modelMapper;
     }
 
 
@@ -29,6 +32,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         super.addArgumentResolvers(argumentResolvers);
         ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().applicationContext(this.applicationContext).build();
-        argumentResolvers.add(new DTOModelMapper(objectMapper, entityManager));
+        argumentResolvers.add(new DTOModelMapper(objectMapper, modelMapper, entityManager));
     }
 }
