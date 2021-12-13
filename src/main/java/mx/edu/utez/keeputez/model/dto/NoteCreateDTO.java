@@ -17,7 +17,7 @@ public class NoteCreateDTO {
 
     private String body;
 
-    private Byte[] image;
+    private String image;
 
     @NotNull
     private LocalDate expiration;

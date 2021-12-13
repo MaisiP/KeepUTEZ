@@ -23,7 +23,7 @@ public class NoteUpdateDTO {
     private String body;
 
     @NotEmpty
-    private Byte[] image;
+    private String image;
 
     @NotNull
     private LocalDate expiration;

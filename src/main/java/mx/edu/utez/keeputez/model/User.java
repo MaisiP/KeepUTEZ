@@ -21,6 +21,7 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private String notificationToken;
+    private Boolean enabled;
 
     @JsonIgnore
     @Override

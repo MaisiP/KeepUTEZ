@@ -16,8 +16,7 @@ public class Note {
     private Integer id;
     private String title;
     private String body;
-    @Lob
-    private Byte[] image;
+    private String image;
     private LocalDate expiration;
 
     @JsonIgnore
